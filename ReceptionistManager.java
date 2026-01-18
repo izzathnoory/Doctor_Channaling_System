@@ -763,9 +763,30 @@ public class ReceptionistManager {
         System.out.println("Available Slots: " + slots);
         System.out.println("Max Appointments Allowed: " + slotLimit);
     }
+
+    // ===== REGISTER RECEPTIONIST =====
+    public void registerReceptionist(String receptionistId, String name, String username, String password) {
+
+        if (DataStore.receptionistCredentials.containsKey(username)) {
+            System.out.println("Receptionist already exists with this username.");
+            return;
+        }
+
+        // Store credentials using LoginManager logic
+        LoginManager loginManager = new LoginManager();
+        loginManager.addReceptionist(username, password);
+
+        // Optional: store receptionist profile info (if needed later)
+        System.out.println("\n✓ RECEPTIONIST REGISTERED SUCCESSFULLY");
+        System.out.println("ID: " + receptionistId);
+        System.out.println("Name: " + name);
+        System.out.println("Username: " + username);
+
+        NotificationService.sendNotification(
+            "✓ New Receptionist Registered\n" +
+            "Name: " + name + "\n" +
+            "Username: " + username
+        );
+    }
+
 }
-
-
-
-
-

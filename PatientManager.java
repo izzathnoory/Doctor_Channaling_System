@@ -1,14 +1,3 @@
-    // Display all patients
-    public void displayPatients() {
-        if (DataStore.patients.isEmpty()) {
-            System.out.println("No patients found.");
-            return;
-        }
-        System.out.println("\n--- All Patients ---");
-        for (Patient p : DataStore.patients.values()) {
-            System.out.println(p);
-        }
-    }
 import java.util.ArrayList;
 
 public class PatientManager {
@@ -55,7 +44,6 @@ public class PatientManager {
         }
     }
 
-    // ===== BOOK AN APPOINTMENT =====
     public void bookAppointment(String patientId, String doctorId, String appointmentDateTime) {
         Patient patient = DataStore.patients.get(patientId);
         Doctor doctor = DataStore.doctors.get(doctorId);
@@ -72,30 +60,27 @@ public class PatientManager {
         String appointmentNumber = DataStore.generateAppointmentNumber();
         String bookedTime = java.time.Instant.now().toString();
         String appointmentInfo = patientId + "-" + doctorId + "-" + appointmentDateTime + "|" + appointmentNumber + "|" + bookedTime;
-        
-        // Use waiting list system
+
         boolean booked = DataStore.bookAppointmentWithWaitingList(appointmentInfo, doctorId);
         saveAppointmentHistory(appointmentInfo);
         DataStore.saveAll();
         
         if (booked) {
-            // Successfully booked
             System.out.println("\n✓ APPOINTMENT BOOKED SUCCESSFULLY!");
             System.out.println("Status: CONFIRMED");
-            NotificationService.sendNotification("\n✓ APPOINTMENT BOOKED SUCCESSFULLY!\n" +
+            NotificationService.sendNotification("APPOINTMENT BOOKED SUCCESSFULLY!" +
                     "Patient: " + patient.getName() + "\n" +
                     "Doctor: " + doctor.getName() + " (" + doctor.getSpecialization() + ")\n" +
                     "Date & Time: " + appointmentDateTime + "\n" +
                     "Status: CONFIRMED\n" +
                     "Consultation Fee: Rs. " + doctor.getConsultationFee());
         } else {
-            // Added to waiting list
             int waitingPosition = DataStore.getWaitingListCount(doctorId);
             System.out.println("\n⏳ APPOINTMENT ADDED TO WAITING LIST");
             System.out.println("Doctor " + doctor.getName() + " is fully booked.");
             System.out.println("Status: WAITING LIST");
             System.out.println("Your position in waiting list: " + waitingPosition);
-            NotificationService.sendNotification("\n⏳ APPOINTMENT ADDED TO WAITING LIST\n" +
+            NotificationService.sendNotification("⏳ APPOINTMENT ADDED TO WAITING LIST" +
                     "Patient: " + patient.getName() + "\n" +
                     "Doctor: " + doctor.getName() + " (" + doctor.getSpecialization() + ")\n" +
                     "Date & Time: " + appointmentDateTime + "\n" +
@@ -105,10 +90,6 @@ public class PatientManager {
         }
     }
 
-    // ===== RECEIVE NOTIFICATION WHEN APPOINTMENT IS BOOKED =====
-    // (Already implemented in bookAppointment method above)
-
-    // ===== VIEW ALL SCHEDULED APPOINTMENTS =====
     public void viewAllScheduledAppointments(String patientId) {
         System.out.println("\n--- Your Scheduled Appointments ---");
         System.out.println("Patient ID: " + patientId);
@@ -122,7 +103,6 @@ public class PatientManager {
         }
     }
 
-    // ===== CANCEL AN APPOINTMENT =====
     public void cancelAppointment(String patientId) {
         if (DataStore.appointments.isEmpty()) {
             System.out.println("No appointments to cancel.");
@@ -130,8 +110,7 @@ public class PatientManager {
         }
         String removed = DataStore.appointments.dequeue();
         String cancelTime = java.time.Instant.now().toString();
-        
-        // Extract doctor ID and check for waiting list
+
         String[] parts = removed.split("-");
         String doctorId = null;
         if (parts.length >= 2) {
@@ -139,18 +118,15 @@ public class PatientManager {
         }
         
         DataStore.addCancelledAppointment(removed);
-        
-        // Add to history stack
+
         DataStore.appointmentHistory.push(removed);
-        
-        // Decrease doctor's appointment count
+
         if (doctorId != null) {
             int current = DataStore.doctorCurrentAppointments.getOrDefault(doctorId, 0);
             DataStore.doctorCurrentAppointments.put(doctorId, Math.max(0, current - 1));
         }
         DataStore.saveAll();
         
-        // Display cancellation details
         System.out.println("\n╔══════════════════════════════════════════════════════════════╗");
         System.out.println("║              APPOINTMENT CANCELLATION DETAILS                 ║");
         System.out.println("╚══════════════════════════════════════════════════════════════╝");
@@ -159,8 +135,6 @@ public class PatientManager {
         System.out.println("Appointment: " + removed);
         System.out.println("Cancelled Time: " + cancelTime);
         System.out.println("Cancelled by Patient: " + patientId);
-        
-        // Check if someone is waiting
         
         
         if (doctorId != null && DataStore.getWaitingListCount(doctorId) > 0) {
@@ -183,10 +157,6 @@ public class PatientManager {
                 "Cancelled Time: " + cancelTime);
     }
 
-    // ===== RECEIVE CANCELLATION NOTIFICATION =====
-    // (Already implemented in cancelAppointment method above)
-
-    // ===== REQUEST APPOINTMENT RESCHEDULE (added to waiting queue) =====
     public void requestReschedule(String patientId, String appointmentId, String newDateTime) {
         System.out.println("\n--- Reschedule Request Submitted ---");
         String rescheduleRequest = patientId + "-" + appointmentId + "-NewTime:" + newDateTime;

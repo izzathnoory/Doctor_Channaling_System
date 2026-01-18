@@ -29,7 +29,8 @@ public class MainApp {
                 System.out.println("╚══════════════════════════════════════════════════════════════╝");
                 System.out.println("\n1. Login");
                 System.out.println("2. Register Patient");
-                System.out.println("3. Exit");
+                System.out.println("3. Register Receptionist");
+                System.out.println("4. Exit");
                 System.out.print("Enter choice: ");
 
                 int choice = sc.nextInt();
@@ -77,7 +78,22 @@ public class MainApp {
                         patientManager.registerPatient(pid, pname, pmobile, pemail, pcity, page, pmed, ppass);
                         break;
 
+                    // ✅ NEW: REGISTER RECEPTIONIST
                     case 3:
+                        System.out.println("\n--- Register Receptionist ---");
+                        System.out.print("Enter Receptionist ID: ");
+                        String rid = sc.nextLine();
+                        System.out.print("Enter Name: ");
+                        String rname = sc.nextLine();
+                        System.out.print("Enter Username: ");
+                        String ruser = sc.nextLine();
+                        System.out.print("Enter Password: ");
+                        String rpass = sc.nextLine();
+
+                        receptionistManager.registerReceptionist(rid, rname, ruser, rpass);
+                        break;
+
+                    case 4:
                         exit = true;
                         break;
 
@@ -220,8 +236,12 @@ public class MainApp {
                         } else {
                             System.out.println("Invalid sorting option.");
                         }
-                        patientManager.displayPatients();
+
+                        // ❌ REMOVE THIS LINE (CAUSE OF ERROR)
+                        // patientManager.displayPatients();
+
                         break;
+
 
                     case 3:
                         receptionistManager.viewAllSchedules();
